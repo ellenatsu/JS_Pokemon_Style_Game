@@ -134,31 +134,31 @@ function playerMove(addX, addY) {
       break;
     }
   }
+
   console.log(moving);
   if (moving) {
     movables.forEach((movable) => {
       movable.position.x += addX;
-      movable.postion.y += addY;
+      movable.position.y += addY;
     });
   }
 }
 
 function animate() {
   window.requestAnimationFrame(animate);
+
   background.draw();
-
   boundaries.forEach((boundary) => boundary.draw());
-
   player.draw();
 
   if (keys.w.pressed && lastKey === "w") {
-    playerMove(0, 3);
+    playerMove({ addX: 0, addY: 3 });
   } else if (keys.a.pressed && lastKey === "a") {
-    playerMove(3, 0);
+    playerMove({ addX: 3, addY: 0 });
   } else if (keys.s.pressed && lastKey === "s") {
-    playerMove(0, -3);
+    playerMove({ addX: 0, addY: -3 });
   } else if (keys.d.pressed && lastKey === "d") {
-    playerMove(-3, 0);
+    playerMove({ addX: -3, addY: 0 });
   }
 }
 
