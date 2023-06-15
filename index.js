@@ -11,18 +11,6 @@ for (let i = 0; i < collisions.length; i += 70) {
   collisionsMap.push(collisions.slice(i, i + 70));
 }
 
-class Boundary {
-  constructor({ position }) {
-    this.position = position;
-    this.width = 48;
-    this.height = 48;
-  }
-  draw() {
-    ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-  }
-}
-
 const boundaries = [];
 const offset = {
   x: -780,
@@ -46,34 +34,20 @@ collisionsMap.forEach((row, i) => {
 const image = new Image();
 image.src = "./img/Pellet Town.png";
 
-const playerImage = new Image();
-playerImage.src = "./img/playerDown.png";
+const foregroundImage = new Image();
+foregroundImage.src = "./img/foreground.png";
 
-class Sprite {
-  constructor({ position, velocity, image, frames = { max: 1 } }) {
-    this.position = position;
-    this.image = image;
-    this.frames = frames;
+const playerDownImage = new Image();
+playerDownImage.src = "./img/playerDown.png";
 
-    this.image.onload = () => {
-      this.width = this.image.width / this.frames.max;
-      this.height = this.image.height;
-    };
-  }
-  draw() {
-    ctx.drawImage(
-      this.image,
-      0,
-      0,
-      this.image.width / this.frames.max,
-      this.image.height,
-      this.position.x,
-      this.position.y,
-      this.image.width / this.frames.max,
-      this.image.height
-    );
-  }
-}
+const playerUpImage = new Image();
+playerUpImage.src = "./img/playerUp.png";
+
+const playerLeftImage = new Image();
+playerLeftImage.src = "./img/playerLeft.png";
+
+const playerRightImage = new Image();
+playerRightImage.src = "./img/playerRight.png";
 
 let background = new Sprite({
   position: {
@@ -83,14 +57,29 @@ let background = new Sprite({
   image: image,
 });
 
+let foreground = new Sprite({
+  position: {
+    x: offset.x,
+    y: offset.y,
+  },
+  image: foregroundImage,
+});
+
+//canvas.height / 2 - 68 / 2
 const player = new Sprite({
   position: {
     x: canvas.width / 2 - (192 * 3) / 8,
-    y: canvas.height / 2 - 68 / 2,
+    y: canvas.height / 2,
   },
-  image: playerImage,
+  image: playerDownImage,
   frames: {
     max: 4,
+  },
+  sprites: {
+    up: playerUpImage,
+    down: playerDownImage,
+    left: playerLeftImage,
+    right: playerRightImage,
   },
 });
 
@@ -103,19 +92,18 @@ const keys = {
 
 let lastKey = "";
 
-const movables = [background, ...boundaries];
+const movables = [background, foreground, ...boundaries];
 
 function rectangularCollision({ rectangle1, rectangle2 }) {
   return (
     rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
     rectangle1.position.x <= rectangle2.position.x + rectangle2.width &&
-    rectangle1.position.y <= rectangle2.position.y + rectangle2.height &&
+    rectangle1.position.y <= rectangle2.position.y + rectangle2.height / 2 &&
     rectangle1.position.y + rectangle1.height >= rectangle2.position.y
   );
 }
 
-function playerMove(addX, addY) {
-  let moving = true;
+function playerMove(addX, addY, moving) {
   for (let i = 0; i < boundaries.length; i++) {
     const boundary = boundaries[i];
     if (
@@ -134,8 +122,7 @@ function playerMove(addX, addY) {
       break;
     }
   }
-
-  console.log(moving);
+  //console.log(moving);
   if (moving) {
     movables.forEach((movable) => {
       movable.position.x += addX;
@@ -145,20 +132,31 @@ function playerMove(addX, addY) {
 }
 
 function animate() {
+  let moving = true;
   window.requestAnimationFrame(animate);
 
   background.draw();
   boundaries.forEach((boundary) => boundary.draw());
   player.draw();
+  foreground.draw();
 
+  player.moving = false;
   if (keys.w.pressed && lastKey === "w") {
-    playerMove({ addX: 0, addY: 3 });
+    player.moving = true;
+    player.image = player.sprites.up;
+    playerMove(0, 3, moving);
   } else if (keys.a.pressed && lastKey === "a") {
-    playerMove({ addX: 3, addY: 0 });
+    player.moving = true;
+    player.image = player.sprites.left;
+    playerMove(3, 0, moving);
   } else if (keys.s.pressed && lastKey === "s") {
-    playerMove({ addX: 0, addY: -3 });
+    player.moving = true;
+    player.image = player.sprites.down;
+    playerMove(0, -3, moving);
   } else if (keys.d.pressed && lastKey === "d") {
-    playerMove({ addX: -3, addY: 0 });
+    player.moving = true;
+    player.image = player.sprites.right;
+    playerMove(-3, 0, moving);
   }
 }
 
