@@ -11,7 +11,13 @@ for (let i = 0; i < collisions.length; i += 70) {
   collisionsMap.push(collisions.slice(i, i + 70));
 }
 
+let battleZoneMap = [];
+for (let i = 0; i < battleZonesData.length; i += 70) {
+  battleZoneMap.push(battleZonesData.slice(i, i + 70));
+}
+
 const boundaries = [];
+const battleZone = [];
 const offset = {
   x: -780,
   y: -600,
@@ -20,6 +26,21 @@ collisionsMap.forEach((row, i) => {
   row.forEach((col, j) => {
     if (col === 1025) {
       boundaries.push(
+        new Boundary({
+          position: {
+            x: j * 48 + offset.x,
+            y: i * 48 + offset.y,
+          },
+        })
+      );
+    }
+  });
+});
+
+battleZoneMap.forEach((row, i) => {
+  row.forEach((col, j) => {
+    if (col === 1025) {
+      battleZone.push(
         new Boundary({
           position: {
             x: j * 48 + offset.x,
