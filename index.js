@@ -113,7 +113,7 @@ const keys = {
 
 let lastKey = "";
 
-const movables = [background, foreground, ...boundaries];
+const movables = [background, foreground, ...boundaries, ...battleZone];
 
 function rectangularCollision({ rectangle1, rectangle2 }) {
   return (
@@ -158,6 +158,7 @@ function animate() {
 
   background.draw();
   boundaries.forEach((boundary) => boundary.draw());
+  battleZone.forEach((boundary) => boundary.draw());
   player.draw();
   foreground.draw();
 
